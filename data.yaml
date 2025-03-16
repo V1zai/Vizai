@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 5
+names: ['0', '1', '2', '3', 'bump']
+
+roboflow:
+  workspace: drisya-d-c70tn
+  project: pothole-and-hump-detection
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/drisya-d-c70tn/pothole-and-hump-detection/dataset/1
