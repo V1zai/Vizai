@@ -3,6 +3,14 @@ import yaml
 from ultralytics import YOLO
 from clearml import Task, Dataset, Logger
 
+import psutil # Debug
+import time # Debug
+
+def log_memory_usage(): # Debug
+    process = psutil.Process(os.getpid())
+    memory_info = process.memory_info()
+    print(f"Memory usage: {memory_info.rss / 1024 / 1024:.2f} MB")
+
 print("Starting YOLOv8 training pipeline...")
 
 # Initialize ClearML task
@@ -12,6 +20,7 @@ task = Task.init(
     task_type=Task.TaskTypes.training
 )
 
+log_memory_usage() # Debug
 # Get absolute path to the workspace
 workspace_path = os.path.abspath(".")
 
