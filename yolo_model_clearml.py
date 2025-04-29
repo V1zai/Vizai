@@ -55,7 +55,8 @@ for label_file in os.listdir(label_dir):
                         continue
 
 # Sort class IDs and assign names 
-class_names = {i: f"class_{i}" for i in sorted(class_ids)}  # Default names: class_0, class_1, etc.
+#class_names = {i: f"class_{i}" for i in sorted(class_ids)}  # Default names: class_0, class_1, etc.
+class_names = ['barrier', 'bicycle', 'car', 'crosswalk', 'dog', 'person', 'pole', 'shutters', 'signboard', 'trash_can', 'tree', 'truck']
 
 # Create data.yaml
 data_yaml = {
