@@ -24,8 +24,8 @@ log_memory_usage() # Debug
 # Get absolute path to the workspace
 workspace_path = os.path.abspath(".")
 
-# Path to your dataset directory (parent of train/valid folders)
-dataset_path = workspace_path
+# Path to dataset directory 
+dataset_path = workspace_path + "/data"
 
 # Register dataset with ClearML
 dataset = Dataset.create(
@@ -37,7 +37,7 @@ dataset.add_files(path=dataset_path)
 dataset.upload()
 dataset.finalize()
 
-# Path to your labels
+# Path to labels
 label_dir = os.path.join(dataset_path, "train/labels")
 
 print("Analyzing label files...")
@@ -54,7 +54,7 @@ for label_file in os.listdir(label_dir):
                     except (IndexError, ValueError):
                         continue
 
-# Sort class IDs and assign names (you can customize names later)
+# Sort class IDs and assign names 
 class_names = {i: f"class_{i}" for i in sorted(class_ids)}  # Default names: class_0, class_1, etc.
 
 # Create data.yaml
@@ -91,22 +91,24 @@ print("Starting training...")
 # Train on CPU
 results = model.train(
     data=output_path,  # Your dataset YAML
-    epochs=50,
+    epochs=100,        # Changed back to 50 epochs
     batch=8,              # Reduce batch size (CPU memory is limited)
-    imgsz=320,            # Smaller image size = faster on CPU
+    imgsz=640,            # Smaller image size = faster on CPU
     device="cpu",         # Force CPU training
+    #device=0,
     name="yolov8_cpu",    # Save results to 'runs/detect/yolov8_cpu'
-    project="Vizai"       # Project name for ClearML
+    project="Vizai",       # Project name for ClearML
+    augment=True
 )
 
 print("Training completed. Starting validation...")
 # Evaluate the model
 metrics = model.val(
     data=output_path,
-    batch=8,          # Match your training batch size
-    imgsz=320,        # Match your training image size
-    device='cpu',     # Use 'cuda' if GPU available
-    split='val'       # Uses the 'val' set from data.yaml
+    batch=8,          
+    imgsz=320,        
+    device='cpu',     
+    split='val'       
 )
 
 # Log validation metrics to ClearML

@@ -1,0 +1,16 @@
+path: E:\UTS\2025s1\42174_AIStudio\Vizai\Vizai/data
+train: E:\UTS\2025s1\42174_AIStudio\Vizai\Vizai/data\train/images
+val: E:\UTS\2025s1\42174_AIStudio\Vizai\Vizai/data\valid/images
+names:
+  0: class_0
+  1: class_1
+  2: class_2
+  3: class_3
+  4: class_4
+  5: class_5
+  6: class_6
+  7: class_7
+  8: class_8
+  9: class_9
+  10: class_10
+  11: class_11
