@@ -94,7 +94,7 @@ results = model.train(
     data=output_path,  # Your dataset YAML
     epochs=100,        # Changed back to 50 epochs
     batch=8,              # Reduce batch size (CPU memory is limited)
-    imgsz=640,            # Smaller image size = faster on CPU
+    imgsz=320,            # Smaller image size = faster on CPU
     device="cpu",         # Force CPU training
     #device=0,
     name="yolov8_cpu",    # Save results to 'runs/detect/yolov8_cpu'
