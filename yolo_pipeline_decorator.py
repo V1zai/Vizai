@@ -6,6 +6,7 @@ import glob
 from clearml import Dataset, Task
 from clearml.automation.controller import PipelineDecorator
 from ultralytics import YOLO
+import torch
 
 
 @PipelineDecorator.component(cache=False, execution_queue='default')
@@ -49,14 +50,16 @@ def train_model(data_yaml_path):
     model = YOLO("yolov8n.pt")
     task.connect(model)
 
+    device = 0 if torch.cuda.is_available() else "cpu"
+
     # Train
     model.train(
         data=data_yaml_path,
-        epochs=50,
+        epochs=100,
         batch=8,
         imgsz=320,
-        device="cpu",
-        name="yolov8_cpu",
+        device=device,
+        name="yolov8",
         project="Vizai",
         augment=True
     )
@@ -66,7 +69,7 @@ def train_model(data_yaml_path):
         data=data_yaml_path,
         batch=8,
         imgsz=320,
-        device='cpu',
+        device=device,
         split='val'
     )
 
@@ -100,5 +103,5 @@ def full_pipeline():
 
 
 if __name__ == "__main__":
-    PipelineDecorator.run_locally()  # For local testing
+    PipelineDecorator.run_locally()  # Run controller locally instead of services queue
     full_pipeline()
