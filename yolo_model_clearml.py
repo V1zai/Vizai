@@ -53,7 +53,7 @@ def train_model():
     data_yaml = {
         "path": dataset_path,
         "train": os.path.join(dataset_path, "train/images"),
-        "val": os.path.join(dataset_path, "valid/images"),
+        "val": os.path.join(dataset_path, "test/images"),
         "names": class_names
     }
 

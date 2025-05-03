@@ -1,16 +1,4 @@
-path: E:\UTS\2025s1\42174_AIStudio\Vizai\Vizai/data
-train: E:\UTS\2025s1\42174_AIStudio\Vizai\Vizai/data\train/images
-val: E:\UTS\2025s1\42174_AIStudio\Vizai\Vizai/data\valid/images
-names:
-- barrier
-- bicycle
-- car
-- crosswalk
-- dog
-- person
-- pole
-- shutters
-- signboard
-- trash_can
-- tree
-- truck
+train: ../images
+test: ../images
+nc: 14
+names: ['barrier', 'bicycle', 'car', 'crosswalk', 'dog', 'person', 'pole', 'shutters', 'signboard', 'trash_can', 'tree', 'truck', 'billboard', 'pedestrian']
