@@ -168,31 +168,5 @@ if __name__ == "__main__":
     print("Optional for ClearML logging: pip install clearml")
     print("-" * 30)
 
-!python voiceIntegration.ipynb
 
-# import sys
-# sys.path.append('/content/Vizai/Vizai')
 
-# import ast
-
-# file_path = "/content/Vizai/Vizai/yolo_pipeline_decorator.py"
-# with open(file_path, "r") as f:
-#     source = f.read()
-
-# tree = ast.parse(source)
-# funcs = [node.name for node in tree.body if isinstance(node, ast.FunctionDef)]
-# classes = [node.name for node in tree.body if isinstance(node, ast.ClassDef)]
-
-# print("Functions in yolo_pipeline_decorator.py:", funcs)
-# print("Classes in yolo_pipeline_decorator.py:", classes)
-
-# import importlib
-# import yolo_pipeline_decorator
-# importlib.reload(yolo_pipeline_decorator)
-# from yolo_pipeline_decorator import yolo_decorator
-
-# !pip install ultralytics==8.1.0
-# !pip install torch==2.1.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-
-# !pip install numpy==1.26.4 --quiet
-# !pip install clearml
