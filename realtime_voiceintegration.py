@@ -55,7 +55,8 @@ def speak_text(text_to_speak, lang='en'):
 def main_realtime_detection():
     global target_object_label, announce_on_find, stop_threads, announced_objects_in_frame, yolo_model
 
-    cap = cv2.VideoCapture(0) # 0 for default camera, or path to video file
+    #cap = cv2.VideoCapture(0) # 0 for default camera, or path to video file
+    cap = cv2.VideoCapture('Vizai/data/video/PXL_20250423_073418424.TS.mp4')
     if not cap.isOpened():
         print("Error: Could not open video stream (webcam or file).")
         stop_threads = True # Signal voice thread to stop
