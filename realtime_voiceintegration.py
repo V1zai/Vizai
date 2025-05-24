@@ -12,7 +12,7 @@ Original file is located at
 # %cd   
 
 #!pip install playsound opencv-python gtts SpeechRecognition PyAudio
-!pip install ultralytics
+#!pip install ultralytics
 
 import cv2
 from ultralytics import YOLO
