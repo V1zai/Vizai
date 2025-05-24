@@ -11,7 +11,7 @@ Original file is located at
 #!git clone https://github.com/V1zai/Vizai.git
 # %cd
 
-!pip install playsound ultralytics opencv-python gtts SpeechRecognition PyAudio
+#!pip install playsound ultralytics opencv-python gtts SpeechRecognition PyAudio
 
 import cv2
 from ultralytics import YOLO
