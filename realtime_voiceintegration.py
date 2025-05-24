@@ -8,10 +8,10 @@ Original file is located at
 """
 
 # Commented out IPython magic to ensure Python compatibility.
-#!git clone https://github.com/V1zai/Vizai.git
-# %cd Vizai
+!git clone https://github.com/V1zai/Vizai.git
+# %cd
 
-#!pip install playsound
+!pip install playsound ultralytics opencv-python gtts SpeechRecognition PyAudio
 
 import cv2
 from ultralytics import YOLO
@@ -26,148 +26,142 @@ from gtts import gTTS
 from IPython.display import Audio, display
 
 # --- Global Variables for Thread Communication ---
-target_object_label = None
-announce_on_find = False
+target_object_label = None      # Will be set before calling main_realtime_detection
+announce_on_find = False      # Will be set to True for the test
 last_command = None
 announced_objects_in_frame = set() # To prevent spamming TTS
 stop_threads = False # Flag to signal threads to stop
 
-model = YOLO("yolov8n.pt")
+# Initialize the YOLO model (it will download yolov8n.pt if not found)
+try:
+    model = YOLO("yolov8n.pt")
+except Exception as e:
+    print(f"Error loading YOLO model: {e}")
+    print("Please ensure you have an internet connection for the first download, or the model file is accessible.")
+    exit()
 
 def speak_text(text_to_speak, lang='en'):
     try:
         print(f"TTS: Attempting to say: '{text_to_speak}'")
         tts = gTTS(text=text_to_speak, lang=lang, slow=False)
-        # Using a unique name to avoid conflicts if TTS is rapid, though playsound is blocking
         audio_file = f"temp_tts_audio_{int(time.time()*1000)}.mp3"
         tts.save(audio_file)
         playsound(audio_file)
         os.remove(audio_file) # Clean up the audio file
-        # print("TTS: Playback complete.")
     except Exception as e:
         print(f"Error in TTS or playback: {e}")
         if "audio_file" in locals() and os.path.exists(audio_file):
             try:
-                os.remove(audio_file) # Attempt cleanup on error too
+                os.remove(audio_file)
             except Exception as e_del:
                 print(f"Error deleting temp audio file: {e_del}")
 
 def main_realtime_detection():
-    global target_object_label, announce_on_find, stop_threads, announced_objects_in_frame, yolo_model
+    global target_object_label, announce_on_find, stop_threads, announced_objects_in_frame, model
 
-    #cap = cv2.VideoCapture(0) # 0 for default camera, or path to video file
-    cap = cv2.VideoCapture('Vizai/data/video/PXL_20250423_073418424.TS.mp4')
+    # Corrected video path assuming the script runs after '%cd Vizai'
+    video_path = 'data/video/PXL_20250423_073418424.TS.mp4'
+    # To use webcam, uncomment the line below and comment out the video_path line
+    # cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(video_path)
+
+
     if not cap.isOpened():
-        print("Error: Could not open video stream (webcam or file).")
-        stop_threads = True # Signal voice thread to stop
+        print(f"Error: Could not open video stream ('{video_path}' or webcam).")
+        print("Please check the video path or camera connection.")
+        stop_threads = True
         return
 
     print("\n--- Real-time Object Detection Started ---")
     print("Press 'q' in the video window to quit.")
-    # You can optionally initialize a new ClearML task here for logging this inference session
-    # from clearml import Task
-    # inference_task = Task.init(project_name="Vizai/Inference", task_name="Realtime Detection with Voice")
 
     frame_count = 0
     while not stop_threads:
         ret, frame = cap.read()
         if not ret:
-            print("Error: Can't receive frame (stream end?). Exiting ...")
+            print("Info: End of video stream or error receiving frame. Exiting detection loop.")
             break
 
         frame_count += 1
-        # Process every Nth frame if performance is an issue
-        # if frame_count % 2 != 0:
-        #     cv2.imshow('Real-time Object Detection', frame)
-        #     if cv2.waitKey(1) & 0xFF == ord('q'):
-        #         stop_threads = True
-        #     continue
-
-
-        # Perform YOLO detection on the frame
-        results = yolo_model(frame, verbose=False) # verbose=False to reduce console spam from YOLO
-
+        results = model(frame, verbose=False)
         objects_to_announce_this_frame = []
 
         if results and results[0].boxes.cls.numel() > 0:
             detected_boxes = results[0].boxes
             for i in range(len(detected_boxes.cls)):
                 cls_id = int(detected_boxes.cls[i])
-                # Use model.names which should be populated by YOLOv8 based on the loaded model
-                # Default to 'unknown' if class_id is out of bounds for some reason
-                label = yolo_model.names.get(cls_id, f"class_{cls_id}") if hasattr(yolo_model, 'names') and isinstance(yolo_model.names, dict) else f"class_{cls_id}"
-
+                label = model.names.get(cls_id, f"class_{cls_id}") if hasattr(model, 'names') and isinstance(model.names, dict) else f"class_{cls_id}"
                 confidence = float(detected_boxes.conf[i])
-                bbox = detected_boxes.xyxy[i].cpu().numpy().astype(int) # [x1, y1, x2, y2]
+                bbox = detected_boxes.xyxy[i].cpu().numpy().astype(int)
                 x1, y1, x2, y2 = bbox
 
                 display_label_text = f"{label} ({confidence:.2f})"
-                color = (255, 0, 0) # Default color: Blue for non-target objects
+                color = (255, 0, 0) # Blue for non-target
 
-                # If a specific object is targeted by voice command
                 if target_object_label and label.lower() == target_object_label.lower():
-                    color = (0, 255, 0) # Highlight color: Green for target
+                    color = (0, 255, 0) # Green for target
                     display_label_text = f"TARGET: {label} ({confidence:.2f})"
-
-                    # Announce if it's the first time finding this specific target object in a frame
-                    # since the command was given for this target.
                     if announce_on_find and label not in announced_objects_in_frame:
                         objects_to_announce_this_frame.append(f"{label} found")
-                        announced_objects_in_frame.add(label) # Mark as "session announced" for this target
-                        # Set announce_on_find to False after the first group of target objects are announced.
-                        # This prevents re-announcing if multiple instances of the same target are found sequentially.
-                        # announce_on_find = False # Turn off general announce flag once any target is found and queued for announcement
+                        announced_objects_in_frame.add(label) # Mark as "session announced" for this target type
+                        # announce_on_find = False # Commented out to announce if target reappears after not being seen
 
                 cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
                 cv2.putText(frame, display_label_text, (x1, y1 - 10),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
-        else:
-            # No objects detected in this frame
-            pass
 
-        # After processing all detections in the frame, if there were target objects found and
-        # announce_on_find was true, make announce_on_find false.
-        # This ensures we only announce the first frame(s) where the target is found after a command.
+        # Reset announce_on_find only if the specific target was announced in this frame.
+        # This allows re-announcement if the target disappears and then reappears.
+        # If you want it to announce only once per script run for a target, then set announce_on_find = False
+        # more globally after the first announcement.
         if objects_to_announce_this_frame and any(target_object_label and obj.startswith(target_object_label) for obj in objects_to_announce_this_frame):
-             announce_on_find = False
+             # If you want to announce only the very first time the target is found in the session:
+             # announce_on_find = False
+             pass # Current logic will re-announce if target_object_label is still set and announce_on_find is true
 
 
-        # Handle announcements for this frame (TTS runs in its own thread)
         if objects_to_announce_this_frame:
             announcement_text = ", ".join(objects_to_announce_this_frame)
-            # Run TTS in a separate thread to avoid blocking video
             tts_thread = threading.Thread(target=speak_text, args=(announcement_text,))
-            tts_thread.daemon = True # Allow main program to exit even if TTS thread is active
+            tts_thread.daemon = True
             tts_thread.start()
-
 
         cv2.imshow('Real-time Object Detection with Voice Command', frame)
 
-        # Check for 'q' key press to quit
         key = cv2.waitKey(1) & 0xFF
         if key == ord('q'):
             print("Quit command (q key) received from video window.")
-            stop_threads = True # Signal threads to stop
+            stop_threads = True
             break
 
-        if stop_threads: # Check flag if voice command initiated exit
+        if stop_threads:
             break
 
-    # Release resources
     cap.release()
     cv2.destroyAllWindows()
     print("Video stream and windows closed.")
-    stop_threads = True # Ensure voice thread also knows to stop
+    stop_threads = True
 
 if __name__ == "__main__":
-    print("Starting Real-Time Object Detection with Voice Commands...")
-    print(f"Attempting to use YOLO model from: {model}")
-    print("Please ensure you have a microphone connected for voice commands.")
-    print("Make sure you have installed all required libraries:")
-    print("  pip install opencv-python ultralytics gTTS playsound SpeechRecognition PyAudio")
-    print("(PyAudio might require special installation steps depending on your OS)")
-    print("Optional for ClearML logging: pip install clearml")
+    print("Starting Real-Time Object Detection Test...")
+    print(f"YOLO model: yolov8n.pt") # model path/name
+    print("Ensure you have a microphone (if planning for voice commands later) and speakers connected.")
     print("-" * 30)
 
+    # --- Test Configuration ---
+    # Set the object you want the system to announce when detected.
+    # Common classes for yolov8n: 'person', 'car', 'cat', 'dog', 'chair', 'bottle', etc.
+    # Check the content of your video: 'data/video/PXL_20250423_073418424.TS.mp4'
+    target_object_label = "person"  # <<< CHANGE THIS if "person" is not in your video
+    announce_on_find = True         # <<< Set to True to enable announcement for the target
+    announced_objects_in_frame.clear() # Clear any previously announced objects for a fresh run
+    stop_threads = False            # Reset stop flag
 
+    print(f"Test configured to announce when '{target_object_label}' is detected.")
 
+    # Start the main detection loop
+    detection_thread = threading.Thread(target=main_realtime_detection)
+    detection_thread.start()
+    detection_thread.join() # Wait for the detection thread to complete
+
+    print("Detection process finished.")
