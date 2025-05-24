@@ -63,8 +63,8 @@ def main_realtime_detection():
     # Corrected video path assuming the script runs after '%cd Vizai'
     video_path = 'data/video/PXL_20250423_073418424.TS.mp4'
     # To use webcam, uncomment the line below and comment out the video_path line
-    # cap = cv2.VideoCapture(0)
-    cap = cv2.VideoCapture(video_path)
+    cap = cv2.VideoCapture(0)
+    #cap = cv2.VideoCapture(video_path)
 
 
     if not cap.isOpened():
