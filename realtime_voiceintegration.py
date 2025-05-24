@@ -11,7 +11,7 @@ Original file is located at
 #!git clone https://github.com/V1zai/Vizai.git
 # %cd Vizai
 
-!pip install playsound
+#!pip install playsound
 
 import cv2
 from ultralytics import YOLO
