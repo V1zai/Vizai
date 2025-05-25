@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vizai - Your Vision Assistance</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .phone-container {
+            width: 375px;
+            height: 812px;
+            background: #000;
+            border-radius: 40px;
+            border: 8px solid #1a1a1a;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .status-bar {
+            height: 44px;
+            background: #000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .page {
+            width: 100%;
+            height: calc(100% - 44px);
+            position: absolute;
+            top: 44px;
+            transition: transform 0.3s ease;
+            background: #1a1a1a;
+        }
+
+        .page.hidden {
+            transform: translateX(100%);
+        }
+
+        /* Page 1 - Main Detection Screen */
+        .main-screen {
+            display: flex;
+            flex-direction: column;
+            padding: 30px 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .app-header {
+            margin-bottom: 40px;
+        }
+
+        .app-title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .app-subtitle {
+            font-size: 18px;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        .camera-preview {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(135deg, #2d3748, #4a5568);
+            border-radius: 20px;
+            position: relative;
+            margin-bottom: 30px;
+            overflow: hidden;
+            border: 3px solid #4facfe;
+        }
+
+        .camera-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .camera-icon {
+            width: 80px;
+            height: 80px;
+            background: #4facfe;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .detection-status {
+            background: rgba(79, 172, 254, 0.1);
+            border: 2px solid #4facfe;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .status-text {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .detected-objects {
+            font-size: 16px;
+            color: #b0b0b0;
+        }
+
+        .control-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 18px 30px;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(79, 172, 254, 0.3);
+        }
+
+        /* Page 2 - Settings Screen */
+        .settings-screen {
+            padding: 30px 20px;
+            color: white;
+        }
+
+        .settings-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: #4facfe;
+            font-size: 24px;
+            cursor: pointer;
+            margin-right: 15px;
+        }
+
+        .settings-title {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .settings-section {
+            margin-bottom: 35px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #4facfe;
+        }
+
+        .setting-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .setting-label {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .setting-description {
+            font-size: 14px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .toggle-switch {
+            width: 60px;
+            height: 30px;
+            background: #333;
+            border-radius: 15px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: #4facfe;
+        }
+
+        .toggle-knob {
+            width: 26px;
+            height: 26px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-switch.active .toggle-knob {
+            transform: translateX(30px);
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #333;
+            outline: none;
+            margin-top: 10px;
+        }
+
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4facfe;
+            cursor: pointer;
+        }
+
+        .emergency-section {
+            background: rgba(255, 59, 48, 0.1);
+            border: 2px solid rgba(255, 59, 48, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .emergency-btn {
+            background: linear-gradient(45deg, #ff3b30, #ff6b5a);
+            color: white;
+            width: 100%;
+            padding: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .footer-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-dots {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-dot.active {
+            background: #4facfe;
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+
+        <!-- Page 1: Main Detection Screen -->
+        <div class="page" id="page1">
+            <div class="main-screen">
+                <div class="app-header">
+                    <h1 class="app-title">Vizai </h1>
+                    <p class="app-subtitle">Your intelligent walking companion</p>
+                </div>
+
+                <div class="camera-preview">
+                    <div class="camera-overlay">
+                        <div class="camera-icon">📷</div>
+                        <p style="color: #4facfe; font-weight: 600;">Camera Active</p>
+                    </div>
+                </div>
+
+                <div class="detection-status">
+                    <div class="status-text">🟢 Scanning Environment</div>
+                    <div class="detected-objects">
+                        Detected: Person ahead (3m), Bench on right (2m), Tree on left (1.5m)
+                    </div>
+                </div>
+
+                <div class="control-buttons">
+                    <button class="btn btn-primary" onclick="startDetection()">
+                        🎯 Start Detection
+                    </button>
+                    <button class="btn btn-secondary" onclick="readAloud()">
+                        🔊 Read Surroundings Aloud
+                    </button>
+                    <button class="btn btn-secondary" onclick="showSettings()">
+                        ⚙️ Settings & Preferences
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 2: Settings Screen -->
+        <div class="page hidden" id="page2">
+            <div class="settings-screen">
+                <div class="settings-header">
+                    <button class="back-btn" onclick="showMain()">←</button>
+                    <h2 class="settings-title">Settings</h2>
+                </div>
+
+                <div class="settings-section">
+                    <h3 class="section-title">📢 Audio Settings</h3>
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Voice Announcements</div>
+                            <div class="setting-description">Enable spoken object descriptions</div>
+                        </div>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                            <div class="toggle-knob"></div>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Audio Volume</div>
+                            <div class="setting-description">Adjust announcement volume</div>
+                            <input type="range" class="slider" min="0" max="100" value="75">
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Haptic Feedback</div>
+                            <div class="setting-description">Vibrate for important obstacles</div>
+                        </div>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                            <div class="toggle-knob"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3 class="section-title">🎯 Detection Settings</h3>
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Detection Range</div>
+                            <div class="setting-description">Maximum detection distance</div>
+                            <input type="range" class="slider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Priority Objects</div>
+                            <div class="setting-description">Focus on people, vehicles, obstacles</div>
+                        </div>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                            <div class="toggle-knob"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3 class="section-title">🔒 Safety Features</h3>
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Auto Emergency Call</div>
+                            <div class="setting-description">Call emergency contact if stationary too long</div>
+                        </div>
+                        <div class="toggle-switch" onclick="toggleSwitch(this)">
+                            <div class="toggle-knob"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="emergency-section">
+                    <h3 style="color: #ff3b30; margin-bottom: 10px;">🚨 Emergency Features</h3>
+                    <p style="font-size: 14px; color: #ccc; margin-bottom: 15px;">
+                        Quick access to emergency contacts and location sharing
+                    </p>
+                    <button class="emergency-btn">
+                        📞 Emergency Call
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-nav">
+            <div class="nav-dots">
+                <div class="nav-dot active" onclick="showPage(1)"></div>
+                <div class="nav-dot" onclick="showPage(2)"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        let detectionActive = false;
+
+        function showPage(pageNum) {
+            const page1 = document.getElementById('page1');
+            const page2 = document.getElementById('page2');
+            const dots = document.querySelectorAll('.nav-dot');
+
+            if (pageNum === 1) {
+                page1.classList.remove('hidden');
+                page2.classList.add('hidden');
+                currentPage = 1;
+            } else {
+                page1.classList.add('hidden');
+                page2.classList.remove('hidden');
+                currentPage = 2;
+            }
+
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index + 1 === pageNum);
+            });
+        }
+
+        function showMain() {
+            showPage(1);
+        }
+
+        function showSettings() {
+            showPage(2);
+        }
+
+        function startDetection() {
+            const btn = event.target;
+            const statusText = document.querySelector('.status-text');
+            const detectedObjects = document.querySelector('.detected-objects');
+
+            if (!detectionActive) {
+                btn.innerHTML = '⏹️ Stop Detection';
+                btn.style.background = 'linear-gradient(45deg, #ff3b30, #ff6b5a)';
+                statusText.innerHTML = '🔴 Active Detection';
+                detectionActive = true;
+                
+                // Simulate real-time object detection updates
+                simulateDetection();
+            } else {
+                btn.innerHTML = '🎯 Start Detection';
+                btn.style.background = 'linear-gradient(45deg, #4facfe, #00f2fe)';
+                statusText.innerHTML = '🟡 Detection Paused';
+                detectionActive = false;
+            }
+        }
+
+        function simulateDetection() {
+            if (!detectionActive) return;
+
+            const objects = [
+                "Person walking towards you (4m)",
+                "Bicycle approaching from left (6m)",
+                "Lamp post ahead (2m)",
+                "Bench on right side (3m)",
+                "Dog with owner (5m)",
+                "Parked car (7m)",
+                "Pedestrian crossing ahead (8m)"
+            ];
+
+            const detectedObjects = document.querySelector('.detected-objects');
+            const randomObjects = objects.sort(() => 0.5 - Math.random()).slice(0, 3);
+            detectedObjects.innerHTML = `Detected: ${randomObjects.join(', ')}`;
+
+            // Simulate voice announcement
+            if (Math.random() > 0.7) {
+                announceObject(randomObjects[0]);
+            }
+
+            setTimeout(simulateDetection, 2000);
+        }
+
+        function announceObject(object) {
+            // Visual feedback for voice announcement
+            const cameraIcon = document.querySelector('.camera-icon');
+            cameraIcon.style.background = '#ff6b5a';
+            cameraIcon.innerHTML = '🔊';
+            
+            setTimeout(() => {
+                cameraIcon.style.background = '#4facfe';
+                cameraIcon.innerHTML = '📷';
+            }, 1000);
+        }
+
+        function readAloud() {
+            const btn = event.target;
+            btn.innerHTML = '🔊 Reading...';
+            btn.style.background = 'linear-gradient(45deg, #ff6b5a, #ff8a5a)';
+            
+            setTimeout(() => {
+                btn.innerHTML = '🔊 Read Surroundings Aloud';
+                btn.style.background = 'rgba(255, 255, 255, 0.1)';
+            }, 3000);
+        }
+
+        function toggleSwitch(element) {
+            element.classList.toggle('active');
+        }
+
+        // Keyboard navigation support for accessibility
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft' && currentPage > 1) {
+                showPage(currentPage - 1);
+            } else if (e.key === 'ArrowRight' && currentPage < 2) {
+                showPage(currentPage + 1);
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                if (currentPage === 1) {
+                    startDetection();
+                }
+            }
+        });
+
+        // Auto-start detection simulation
+        setTimeout(() => {
+            simulateDetection();
+        }, 1000);
+    </script>
+</body>
+</html>
