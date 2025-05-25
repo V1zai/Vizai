@@ -48,7 +48,9 @@ def train_model(data_yaml_path):
     import sys
 
     # Ensure numpy is installed at runtime (ClearML may run in a clean environment)
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "numpy"])
+    subprocess.check_call([sys.executable, "-m", "pip", "uninstall", "-y", "numpy"])
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "numpy<2"])
+
     
     import numpy  # now numpy will be available
 
