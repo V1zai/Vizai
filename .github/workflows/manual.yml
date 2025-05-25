@@ -34,4 +34,5 @@ jobs:
 
       - name: Run pipeline
         run: |
+          echo "🔁 Running YOLOv8 ClearML pipeline..."
           python yolo_pipeline_decorator.py
