@@ -8,7 +8,7 @@ jobs:
   run_pipeline:
     runs-on: ubuntu-latest
 
-    env:
+    env:  # ✅ env:  # Global environment variables for all steps
       CLEARML_API_ACCESS_KEY: ${{ secrets.CLEARML_API_ACCESS_KEY }}
       CLEARML_API_SECRET_KEY: ${{ secrets.CLEARML_API_SECRET_KEY }}
       CLEARML_API_HOST: ${{ secrets.CLEARML_API_HOST }}
@@ -34,4 +34,6 @@ jobs:
 
       - name: Run pipeline
         run: |
+#          clearml-agent daemon --queue "task" --detached
+#          python main.py
           python yolo_pipeline_decorator.py
