@@ -22,8 +22,6 @@ import threading
 import os
 import time
 
-from ultralytics import YOLO
-from gtts import gTTS
 from IPython.display import Audio, display
 
 # --- Global Variables for Thread Communication ---
@@ -63,8 +61,10 @@ def main_realtime_detection():
     # Corrected video path assuming the script runs after '%cd Vizai'
     video_path = 'data/video/PXL_20250423_073418424.TS.mp4'
     # To use webcam, uncomment the line below and comment out the video_path line
-    cap = cv2.VideoCapture(0)
+    #cap = cv2.VideoCapture(0)
     #cap = cv2.VideoCapture(video_path)
+    cap = cv2.VideoCapture("http://192.168.1.5:8080/video")
+
 
 
     if not cap.isOpened():
@@ -102,7 +102,7 @@ def main_realtime_detection():
                 if target_object_label and label.lower() == target_object_label.lower():
                     color = (0, 255, 0) # Green for target
                     display_label_text = f"TARGET: {label} ({confidence:.2f})"
-                    if announce_on_find and label not in announced_objects_in_frame:
+                    if announce_on_find and label.lower() not in {x.lower() for x in announced_objects_in_frame}:
                         objects_to_announce_this_frame.append(f"{label} found")
                         announced_objects_in_frame.add(label) # Mark as "session announced" for this target type
                         # announce_on_find = False # Commented out to announce if target reappears after not being seen
