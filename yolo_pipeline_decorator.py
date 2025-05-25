@@ -44,6 +44,14 @@ def upload_dataset():
 
 @PipelineDecorator.component(cache=False, execution_queue='default')
 def train_model(data_yaml_path):
+    import subprocess
+    import sys
+
+    # Ensure numpy is installed at runtime (ClearML may run in a clean environment)
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "numpy"])
+    
+    import numpy  # now numpy will be available
+
     task = Task.current_task()
     task.connect({"data_yaml_path": data_yaml_path})
 
@@ -78,6 +86,10 @@ def train_model(data_yaml_path):
     logger.report_scalar("Validation Metrics", "mAP50-95", metrics.box.map, 0)
 
     # Class distribution
+    import glob
+    from collections import Counter
+    import os
+
     dataset_path = os.path.dirname(data_yaml_path)
     label_files = glob.glob(os.path.join(dataset_path, "train/labels/*.txt"))
     class_counts = Counter()
@@ -94,6 +106,7 @@ def train_model(data_yaml_path):
     task.upload_artifact("best.pt", best_model_path)
 
     print("Training complete. Model saved.")
+
 
 
 @PipelineDecorator.pipeline(name='YOLOv8 Pipeline with Decorator', project='Vizai')
