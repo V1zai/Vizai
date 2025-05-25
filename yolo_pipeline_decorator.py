@@ -27,7 +27,7 @@ def upload_dataset():
 
     # Save data.yaml
     class_names = ['barrier', 'bicycle', 'car', 'crosswalk', 'dog', 'person',
-                   'pole', 'shutters', 'signboard', 'trash_can', 'tree', 'truck']
+                   'pole', 'shutters', 'signboard', 'trash_can', 'tree', 'truck', 'people', 'pedestrian']
     data_yaml = {
         "path": dataset_path,
         "train": os.path.join(dataset_path, "train/images"),
