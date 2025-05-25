@@ -36,4 +36,4 @@ jobs:
         run: |
 #          clearml-agent daemon --queue "task" --detached
 #          python main.py
-          python s1_dataset_artifact.py
+          python yolo_pipeline_decorator.py
