@@ -1,11 +1,9 @@
 # Vizai
 Project using machine learning pipeline to help with the blind community
-
-Main Pipeline: yolo_pipeline_decorator.py
-
-
-To run the streamlit interface locally:
-
-pip install streamlit ultralytics pillow pyttsx3
-
-streamlit run app.py
+<br>
+Main Pipeline: yolo_pipeline_decorator.py 	<br>
+<br>
+<br>
+To run the streamlit interface locally:	<br>
+  pip install streamlit ultralytics pillow pyttsx3 	<br>
+  streamlit run app.py
